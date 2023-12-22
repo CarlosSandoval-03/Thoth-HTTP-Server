@@ -18,7 +18,7 @@ endif
 
 PATH_UNITY = lib/Unity/src/
 PATH_SRC = src/
-PATH_TEST = test/
+PATH_TEST = tests/
 PATH_BUILD = build/
 PATH_DEPENDS = build/depends/
 PATH_OBJS = build/objs/
