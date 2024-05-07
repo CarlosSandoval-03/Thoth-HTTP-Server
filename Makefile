@@ -22,7 +22,7 @@ PATH_TEST = test/
 PATH_BUILD = build/
 PATH_DEPENDS = build/depends/
 PATH_OBJS = build/objs/
-PATH_RESULTS = build/results/
+PATH_RESULTS = test_results/
 
 BUILD_PATH_SRC = $(PATH_BUILD) $(PATH_DEPENDS) $(PATH_OBJS) $(PATH_RESULTS)
 

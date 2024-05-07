@@ -111,3 +111,7 @@ tags
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/c,c++,visualstudiocode,vim
+
+# Add test results
+test_results/
+test_results/*

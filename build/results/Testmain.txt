@@ -1,6 +1,0 @@
-test/Testmain.c:23:test_function_should_doBlahAndBlah:PASS
-test/Testmain.c:17:test_function_should_doAlsoDoBlah:FAIL: Expected 12 Was 13
-
------------------------
-2 Tests 1 Failures 0 Ignored 
-FAIL
