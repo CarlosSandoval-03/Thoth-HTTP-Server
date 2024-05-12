@@ -3,12 +3,12 @@ ifeq ($(OS),Windows_NT)
 	CLEANUP = del /F /Q
 	MKDIR = mkdir
   else # in a bash-like shell, like msys
-	CLEANUP = rm -f
+	CLEANUP = rm -rf
 	MKDIR = mkdir -p
   endif
 	TARGET_EXTENSION=exe
 else
-	CLEANUP = rm -f
+	CLEANUP = rm -rf
 	MKDIR = mkdir -p
 	TARGET_EXTENSION=out
 endif
@@ -27,14 +27,16 @@ PATH_RESULTS = test_results/
 BUILD_PATH_SRC = $(PATH_BUILD) $(PATH_DEPENDS) $(PATH_OBJS) $(PATH_RESULTS)
 
 SRCT = $(wildcard $(PATH_TEST)*.c)
+SRCT_CORE = $(wildcard $(PATH_TEST)core/*.c)
 
-COMPILE=gcc -c
+COMPILE=gcc -c -Wall -Werror -pedantic -std=c99	-g
 LINK=gcc
 DEPEND=gcc -MM -MG -MF
 CFLAGS=-I. -I$(PATH_UNITY) -I$(PATH_SRC) -DTEST
 
 # Testing Related Rules
-RESULTS = $(patsubst $(PATH_TEST)Test%.c,$(PATH_RESULTS)Test%.txt,$(SRCT) )
+RESULTS = $(patsubst $(PATH_TEST)test_%.c,$(PATH_RESULTS)test_%.txt,$(SRCT))
+RESULTS += $(patsubst $(PATH_TEST)core/test_%.c,$(PATH_RESULTS)test_%.txt,$(SRCT_CORE))
 
 PASSED = `grep -s PASS $(PATH_RESULTS)*.txt`
 FAIL = `grep -s FAIL $(PATH_RESULTS)*.txt`
@@ -58,18 +60,29 @@ test: $(BUILD_PATH_SRC) $(RESULTS)
 	@echo -e "$(END_COLOUR)"
 	@echo -e "\nDONE"
 
+build: $(BUILD_PATH_SRC)
+	@echo "Building..."
+	
+	@echo "Done."
+
 $(PATH_RESULTS)%.txt: $(PATH_BUILD)%.$(TARGET_EXTENSION)
 	-./$< > $@ 2>&1
 
 # Build Related Rules
-$(PATH_BUILD)Test%.$(TARGET_EXTENSION): $(PATH_OBJS)Test%.o $(PATH_OBJS)%.o $(PATH_OBJS)unity.o #$(PATH_DEPENDS)Test%.d
+$(PATH_BUILD)test_%.$(TARGET_EXTENSION): $(PATH_OBJS)test_%.o $(PATH_OBJS)%.o $(PATH_OBJS)unity.o #$(PATH_DEPENDS)test_%.d
+	$(LINK) -o $@ $^
+$(PATH_BUILD)test_%.$(TARGET_EXTENSION): $(PATH_OBJS)core/test_%.o $(PATH_OBJS)core/%.o $(PATH_OBJS)unity.o #$(PATH_DEPENDS)core/test_%.d
 	$(LINK) -o $@ $^
 
 # Object Related Rules
 $(PATH_OBJS)%.o:: $(PATH_TEST)%.c
 	$(COMPILE) $(CFLAGS) $< -o $@
+$(PATH_OBJS)core/%.o:: $(PATH_TEST)core/%.c
+	$(COMPILE) $(CFLAGS) $< -o $@
 
 $(PATH_OBJS)%.o:: $(PATH_SRC)%.c
+	$(COMPILE) $(CFLAGS) $< -o $@
+$(PATH_OBJS)core/%.o:: $(PATH_SRC)core/%.c
 	$(COMPILE) $(CFLAGS) $< -o $@
 
 $(PATH_OBJS)%.o:: $(PATH_UNITY)%.c $(PATH_UNITY)%.h
@@ -86,14 +99,18 @@ $(PATH_DEPENDS):
 
 $(PATH_OBJS):
 	$(MKDIR) $(PATH_OBJS)
+	$(MKDIR) $(PATH_OBJS)core/
 
 $(PATH_RESULTS):
 	$(MKDIR) $(PATH_RESULTS)
 
 clean:
-	$(CLEANUP) $(PATH_OBJS)*.o
-	$(CLEANUP) $(PATH_BUILD)*.$(TARGET_EXTENSION)
-	$(CLEANUP) $(PATH_RESULTS)*.txt
+	@echo "Cleaning up..."
+	@$(CLEANUP) $(PATH_OBJS)
+	@$(CLEANUP) $(PATH_BUILD)
+	@$(CLEANUP) $(PATH_RESULTS)
+	@echo "Done."
+
 
 .PRECIOUS: $(PATH_BUILD)Test%.$(TARGET_EXTENSION)
 .PRECIOUS: $(PATH_DEPENDS)%.d
