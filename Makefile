@@ -15,6 +15,7 @@ endif
 
 .PHONY: clean
 .PHONY: test
+.PHONY: build
 
 PATH_UNITY = lib/Unity/src/
 PATH_SRC = src/
